@@ -1,43 +1,37 @@
-// Import dependencies
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 
-// Load environment variables from .env file
-dotenv.config();
-
-// Initialize express app
+// Initialize Express App
 const app = express();
+const PORT = 5500;
 
-// Middleware to parse JSON
-app.use(express.json());
+// Middleware
+app.use(bodyParser.json());
 
-// MongoDB connection setup
-const connectDB = async () => {
-  try {
-    // Connect to MongoDB using the URI from the .env file
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+// MongoDB Connection
+mongoose.connect('mongodb://localhost:27017/your-db-name', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error(err));
 
-    console.log(`MongoDB Connected!`);
-  } catch (err) {
-    console.error(`Error: ${err.message}`);
-    process.exit(1); // Exit the process if DB connection fails
-  }
-};
+// Import Routes
+const attractions = require('./routes/attractions'); // Ensure correct file paths
+const visitors = require('./routes/visitors');       // Ensure correct file paths
+const reviews = require('./routes/reviews');         // Ensure correct file paths
 
-// Call the connectDB function to establish the database connection
-connectDB();
+// Use Routes
+app.use('/attractions', attractions);
+app.use('/visitors', visitors);
+app.use('/reviews', reviews);
 
-// Basic route for testing
 app.get('/', (req, res) => {
-  res.send('Server is up and running!');
-});
+    res.send("Tourism Mangaement Server is up and running");
+})
 
-// Define the port and start the server
-const PORT = process.env.PORT || 5500;
+// Start Server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
